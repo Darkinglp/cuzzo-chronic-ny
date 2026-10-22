@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cuzzo Chronic — NY Private Connoisseur Club | Living Soil</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Tipografías de lujo: Cinzel para títulos clásicos, Plus Jakarta Sans para lectura limpia -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- ===================================================
+       FONDO GLOBAL DE TRICOMAS Y POLEN DORADO FLOTANTE (IDEA 1)
+       =================================================== -->
+  <canvas id="trichome-canvas"></canvas>
+
+  <!-- ===================================================
+       1. VERIFICACIÓN DE EDAD (21+ REQUERIDO EN EE. UU.)
+       =================================================== -->
+  <div id="age-gate" class="age-gate-overlay">
+    <div class="age-gate-card">
+      <div class="age-badge">NY • PRIVATE FAMILY COLLECTIVE</div>
+      <h1>CUZZO CHRONIC</h1>
+      <p class="age-subtitle">Rooted in Quality. Grown with Love. Keeping the Classics Alive.</p>
+      <div class="age-divider"></div>
+      <p class="age-question">You must be <strong>21 years of age or older</strong> to enter this experience and apply for private membership.</p>
+      <div class="age-buttons">
+        <button id="btn-age-yes" class="btn-gold">I AM 21 OR OLDER — ENTER</button>
+        <button id="btn-age-no" class="btn-outline">EXIT</button>
+      </div>
+      <p id="age-error-msg" class="age-error">Access restricted. You must be 21+ to view Cuzzo Chronic.</p>
+      <span class="age-legal">Valid government ID required for club membership verification.</span>
+    </div>
+  </div>
+
+  <!-- ===================================================
+       2. PANTALLA DE HUMO MATEMÁTICO INICIAL
+       =================================================== -->
+  <div id="intro-screen">
+    <canvas id="smoke-canvas"></canvas>
+    <div class="intro-title">
+      <span class="intro-location">BORN & RAISED IN NEW YORK</span>
+      <h1>CUZZO CHRONIC</h1>
+      <p>Bringing New York Back to Its Roots, One Harvest at a Time...</p>
+    </div>
+  </div>
+
+  <!-- ===================================================
+       3. CINTA SUPERIOR EN MOVIMIENTO (MARQUEE TICKER - IDEA 1)
+       =================================================== -->
+  <div class="top-marquee">
+    <div class="marquee-track">
+      <span>✦ CUZZO CHRONIC NEW YORK</span>
+      <span>🌱 100% LIVING SOIL CULTIVATION</span>
+      <span>✦ SEED-TO-SOIL APPROACH</span>
+      <span>🚫 ZERO RECYCLED CLONES OR EMPTY HYPE</span>
+      <span>👑 HOUSE FAVORITE: JACK HERER</span>
+      <span>✦ OLD-SCHOOL LEGENDS: BLUE DREAM • LEMON HAZE • OG KUSH • GRANDDADDY PURPLE</span>
+      <span>🔑 PRIVATE 21+ MEMBER COLLECTIVE</span>
+      <!-- Duplicado para loop infinito perfecto -->
+      <span>✦ CUZZO CHRONIC NEW YORK</span>
+      <span>🌱 100% LIVING SOIL CULTIVATION</span>
+      <span>✦ SEED-TO-SOIL APPROACH</span>
+      <span>🚫 ZERO RECYCLED CLONES OR EMPTY HYPE</span>
+      <span>👑 HOUSE FAVORITE: JACK HERER</span>
+    </div>
+  </div>
+
+  <!-- ===================================================
+       4. NAVEGACIÓN PRINCIPAL FIJA
+       =================================================== -->
+  <header class="site-navbar">
+    <div class="nav-container">
+      <a href="#hero-table-section" class="nav-brand">CUZZO CHRONIC <span>NY</span></a>
+      <nav class="nav-links">
+        <a href="#hero-table-section">The Table</a>
+        <a href="#roots-section">Our Roots & Why Us</a>
+        <a href="#membership-vault" class="nav-vip-link">🔑 Membership Sign Up</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ===================================================
+       5. CONTENEDOR HÍBRIDO PRINCIPAL (MESA + SCROLL EDITORIAL)
+       =================================================== -->
+  <div class="hybrid-page-wrapper" id="main-scene">
+
+    <!-- SECCIÓN A: EL SHOWROOM INTERACTIVO (LA MESA DE LUJO) -->
+    <section class="room-container" id="hero-table-section">
+      
+      <div class="hero-intro-Copy">
+        <span class="eyebrow-tag">FAMILY-OWNED & OPERATED • NEW YORK</span>
+        <h2>Real Flower. Real Roots. Real Passion.</h2>
+        <p>"Great flower shouldn’t be so hard to find. Tap any item on the rolling tray below or scroll down to discover our roots and apply for membership."</p>
+      </div>
+
+      <!-- Zona central con widgets flotantes a los lados en PC para evitar vacíos -->
+      <div class="stage-middle-wrapper">
+        
+        <!-- Widget Flotante Izquierdo (Rellena el espacio en PC con info de cosecha) -->
+        <aside class="floating-side-card left-card">
+          <div class="live-dot-row">
+            <span class="pulse-dot"></span>
+            <small>NY HARVEST STATUS</small>
+          </div>
+          <h4>Living Soil Batch #042</h4>
+          <p>Slow-cured in small family batches to preserve natural trichomes and rich old-school aromas.</p>
+          <div class="side-stat-row">
+            <span>Soil: <strong>100% Organic</strong></span>
+            <span>Cure: <strong>62% RH</strong></span>
+          </div>
+        </aside>
+
+        <!-- Contenedor con visor deslizable para celulares y mesa interactiva -->
+        <div class="camera-viewport" id="camera-viewport">
+          
+          <!-- Pista visual para móvil -->
+          <div class="swipe-hint" id="swipe-hint">
+            <span>⟵ Swipe the Luxury Rolling Tray ⟶</span>
+          </div>
+
+          <!-- Superficie realista de la mesa de madera y bandeja de oro -->
+          <div class="table-surface" id="table-surface">
+            <div class="table-spotlight" id="table-spotlight"></div>
+
+            <div class="rolling-tray-rim">
+              <span class="tray-watermark">SEED TO SOIL • PRIVATE NY COLLECTIVE • AUTHENTIC GENETICS</span>
+            </div>
+
+            <!-- OBJETO 1: Jack Herer (House Favorite) -->
+            <div class="interactive-item item-strain" data-category="Jack Herer (House Favorite)" data-desc="Our personal house favorite. Legendary old-school Sativa grown in rich living soil.">
+              <div class="item-tag">House Favorite</div>
+              <svg viewBox="0 0 140 160" class="item-art">
+                <defs>
+                  <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#f3e5ab" />
+                    <stop offset="50%" stop-color="#d4af37" />
+                    <stop offset="100%" stop-color="#8a6d1b" />
+                  </linearGradient>
+                  <radialGradient id="budGlow" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#4ade80" stop-opacity="0.4"/>
+                    <stop offset="100%" stop-color="#060807" stop-opacity="0"/>
+                  </radialGradient>
+                </defs>
+                <ellipse cx="70" cy="142" rx="46" ry="12" fill="rgba(0,0,0,0.75)" />
+                <rect x="30" y="38" width="80" height="100" rx="16" fill="rgba(18, 33, 24, 0.75)" stroke="url(#goldGrad)" stroke-width="2.5"/>
+                <rect x="36" y="20" width="68" height="18" rx="5" fill="url(#goldGrad)" stroke="#fff" stroke-width="0.5"/>
+                <circle cx="70" cy="88" r="35" fill="url(#budGlow)" />
+                <path d="M70,50 C52,55 44,75 48,98 C52,115 88,115 92,98 C96,75 88,55 70,50 Z" fill="#1e4620" stroke="#4ade80" stroke-width="1.5"/>
+                <path d="M62,65 C55,75 58,90 70,95 C82,90 85,75 78,65 Z" fill="#2d6a3e" />
+                <path d="M65,60 Q70,52 76,62 M56,80 Q65,75 62,88 M82,78 Q75,85 80,92" stroke="#f59e0b" stroke-width="2" fill="none" stroke-linecap="round"/>
+                <circle cx="65" cy="72" r="2" fill="#fff" />
+                <circle cx="75" cy="82" r="1.8" fill="#f3e5ab" />
+                <rect x="42" y="108" width="56" height="18" rx="3" fill="#090d0b" stroke="url(#goldGrad)" stroke-width="1"/>
+                <text x="70" y="120" fill="#d4af37" font-size="7.5" font-family="Cinzel" text-anchor="middle" font-weight="bold">JACK HERER</text>
+              </svg>
+            </div>
+
+            <!-- OBJETO 2: The Old-School Classics -->
+            <div class="interactive-item item-classics" data-category="Old-School Classics" data-desc="Blue Dream, Lemon Haze, OG Kush & Granddaddy Purple. Authentic genetics, zero clones.">
+              <div class="item-tag">The Legends</div>
+              <svg viewBox="0 0 150 150" class="item-art">
+                <ellipse cx="75" cy="132" rx="52" ry="13" fill="rgba(0,0,0,0.75)" />
+                <polygon points="20,95 75,125 130,95 75,65" fill="#1c1613" stroke="url(#goldGrad)" stroke-width="2.5"/>
+                <polygon points="20,95 75,125 75,137 20,107" fill="#120d0b" stroke="url(#goldGrad)" stroke-width="1.5"/>
+                <polygon points="130,95 75,125 75,137 130,107" fill="#261c18" stroke="url(#goldGrad)" stroke-width="1.5"/>
+                <circle cx="58" cy="88" r="14" fill="#3b1d4a" stroke="#a855f7" stroke-width="1.5"/>
+                <circle cx="78" cy="82" r="15" fill="#1f4d2b" stroke="#facc15" stroke-width="1.5"/>
+                <circle cx="92" cy="92" r="13" fill="#143625" stroke="#4ade80" stroke-width="1.5"/>
+                <circle cx="98" cy="62" r="16" fill="rgba(102, 252, 241, 0.12)" stroke="url(#goldGrad)" stroke-width="3"/>
+                <line x1="110" y1="74" x2="124" y2="88" stroke="url(#goldGrad)" stroke-width="4" stroke-linecap="round"/>
+              </svg>
+            </div>
+
+            <!-- OBJETO 3 (CENTRAL VIP): Tarjeta de Membresía en la Mesa -->
+            <div class="interactive-item item-membership" data-category="VIP Membership" data-desc="Scroll down or tap here to complete your Member Sign Up & ID verification.">
+              <div class="item-tag vip-tag">★ Member Sign Up</div>
+              <svg viewBox="0 0 160 130" class="item-art">
+                <ellipse cx="80" cy="115" rx="58" ry="12" fill="rgba(0,0,0,0.85)" />
+                <g transform="rotate(-6 80 65)">
+                  <rect x="20" y="25" width="120" height="76" rx="10" fill="#090c0a" stroke="url(#goldGrad)" stroke-width="3"/>
+                  <rect x="26" y="31" width="108" height="64" rx="6" fill="none" stroke="rgba(212,175,55,0.3)" stroke-width="1"/>
+                  <rect x="34" y="48" width="22" height="16" rx="3" fill="url(#goldGrad)"/>
+                  <circle cx="115" cy="52" r="12" fill="rgba(212,175,55,0.15)" stroke="url(#goldGrad)" stroke-width="1.5"/>
+                  <text x="115" y="55" fill="#f3e5ab" font-size="8" font-family="Cinzel" text-anchor="middle" font-weight="bold">21+</text>
+                  <text x="34" y="78" fill="#d4af37" font-size="8.5" font-family="Cinzel" font-weight="bold" letter-spacing="1.5">CUZZO MEMBER</text>
+                  <text x="34" y="88" fill="#8fa398" font-size="5.5" font-family="sans-serif" letter-spacing="2">NEW YORK PRIVATE CLUB</text>
+                </g>
+              </svg>
+            </div>
+
+            <!-- OBJETO 4: Craft Edibles -->
+            <div class="interactive-item item-edibles" data-category="Artisanal Edibles" data-desc="Small-batch infused delicacies made with clean full-spectrum living soil rosin.">
+              <div class="item-tag">Craft Edibles</div>
+              <svg viewBox="0 0 140 140" class="item-art">
+                <ellipse cx="70" cy="122" rx="48" ry="12" fill="rgba(0,0,0,0.75)" />
+                <rect x="22" y="45" width="96" height="70" rx="12" fill="#141716" stroke="url(#goldGrad)" stroke-width="2"/>
+                <rect x="34" y="55" width="46" height="50" rx="5" fill="#2d1810" stroke="#8a6d1b" stroke-width="1.5"/>
+                <line x1="57" y1="55" x2="57" y2="105" stroke="#1a0d08" stroke-width="2"/>
+                <line x1="34" y1="80" x2="80" y2="80" stroke="#1a0d08" stroke-width="2"/>
+                <circle cx="46" cy="68" r="3" fill="#f3e5ab"/>
+                <circle cx="68" cy="92" r="3.5" fill="#d4af37"/>
+                <rect x="88" y="60" width="18" height="18" rx="5" fill="#be123c" stroke="#fda4af" stroke-width="1.2"/>
+                <rect x="85" y="84" width="18" height="18" rx="5" fill="#ca8a04" stroke="#fef08a" stroke-width="1.2"/>
+              </svg>
+            </div>
+
+            <!-- OBJETO 5: Living Soil & NY Roots -->
+            <div class="interactive-item item-roots" data-category="The Living Soil Difference" data-desc="Seed-to-soil organic cultivation. Discover why Cuzzo Chronic hits and tastes different.">
+              <div class="item-tag">What We Do</div>
+              <svg viewBox="0 0 140 150" class="item-art">
+                <ellipse cx="70" cy="134" rx="44" ry="11" fill="rgba(0,0,0,0.75)" />
+                <path d="M38,85 L102,85 L92,130 L48,130 Z" fill="#1c140d" stroke="url(#goldGrad)" stroke-width="2.5"/>
+                <ellipse cx="70" cy="85" rx="32" ry="8" fill="#2e1f14" stroke="url(#goldGrad)" stroke-width="1.5"/>
+                <path d="M70,88 L62,115 M70,88 L78,118 M70,98 L70,124" stroke="#d4af37" stroke-width="1.2" opacity="0.75"/>
+                <path d="M70,82 L70,32" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round"/>
+                <path d="M70,65 C50,55 40,40 48,35 C58,42 65,55 70,65 Z" fill="#15803d" stroke="url(#goldGrad)" stroke-width="1.2"/>
+                <path d="M70,65 C90,55 100,40 92,35 C82,42 75,55 70,65 Z" fill="#15803d" stroke="url(#goldGrad)" stroke-width="1.2"/>
+                <path d="M70,55 C62,35 66,20 70,15 C74,20 78,35 70,55 Z" fill="#22c55e" stroke="url(#goldGrad)" stroke-width="1.2"/>
+              </svg>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Widget Flotante Derecho (Destacado del House Favorite en PC) -->
+        <aside class="floating-side-card right-card">
+          <small class="gold-label">★ PERSONAL HOUSE FAVORITE</small>
+          <h4>Jack Herer Reserve</h4>
+          <p>Authentic old-school genetics. Spicy pine aroma & clean uplifting energy.</p>
+          <a href="#membership-vault" class="side-card-cta">Request Member Access →</a>
+        </aside>
+
+      </div>
+
+      <!-- HUD interactivo e indicador de Scroll Híbrido -->
+      <div class="bottom-experience-bar">
+        <div id="item-hud" class="item-hud">
+          <div class="hud-text-group">
+            <span class="hud-eyebrow" id="hud-eyebrow">INTERACTIVE ROLLING TABLE</span>
+            <h3 id="hud-title">Tap Any Piece on the Table</h3>
+            <p id="hud-desc">Inspect our living-soil flower, craft edibles, or jump straight to the Membership Vault below.</p>
+          </div>
+          <div class="hud-actions">
+            <a href="#" id="hud-link" class="hud-btn">Inspect Selection</a>
+            <a href="#membership-vault" class="hud-btn-secondary">🔑 Sign Up Below</a>
+          </div>
+        </div>
+
+        <a href="#roots-section" class="scroll-down-indicator">
+          <span>Scroll for Our Story, Living Soil & Member Sign Up</span>
+          <div class="scroll-arrow">↓</div>
+        </a>
+      </div>
+
+    </section>
+
+    <!-- ===================================================
+         SECCIÓN B: HISTORIA DEL CLIENTE Y COMPARADOR (IDEA 3)
+         =================================================== -->
+    <section class="editorial-section" id="roots-section">
+      <div class="section-container">
+        
+        <!-- Bloque del Manifiesto Oficial de Cuzzo Chronic -->
+        <div class="manifesto-showcase">
+          <span class="eyebrow-tag">WHAT WE DO • BORN & RAISED IN NEW YORK</span>
+          <h2 class="section-title">Keeping the Classics Alive</h2>
+          <p class="lead-quote">"Rooted in Quality. Grown with Love. Bringing New York Back to Its Roots, One Harvest at a Time."</p>
+          
+          <div class="manifesto-columns">
+            <p>
+              Welcome to <strong>Cuzzo Chronic</strong>, where real flower, real roots, and real passion come together. Born and raised in New York, we are a family-owned and operated brand built on one simple belief: <em>great flower shouldn’t be so hard to find.</em> We got tired of seeing the same recycled strains, endless clones, and fancy names that never lived up to the hype. Somewhere along the way, it felt like the quality and character of real flower got lost. So we decided to bring it back to the roots!
+            </p>
+            <p>
+              At Cuzzo Chronic, we’re passionate about growing the natural way, using <strong>living soil</strong> and a <strong>seed-to-soil approach</strong> that respects the plant from beginning to end. From the legendary <strong>Blue Dream, Lemon Haze, OG Kush, and Granddaddy Purple</strong> to our personal house favorite, <strong>Jack Herer</strong>, we’re all about authentic genetics, rich aromas, beautiful buds, and the unique characteristics that make each strain special. We believe Sativa, Hybrid, and Indica should be more than just labels on a package.
+            </p>
+          </div>
+        </div>
+
+        <!-- Comparador Cara a Cara: Cuzzo Chronic vs. Commercial Hype (IDEA 3) -->
+        <div class="comparison-block">
+          <h3 class="sub-heading">Why Connoisseurs Choose Cuzzo Chronic</h3>
+          <div class="comparison-grid">
+            
+            <!-- Columna de lo que hacen las marcas comerciales -->
+            <div class="comp-card comp-hype">
+              <div class="comp-header">
+                <span class="comp-badge bad">THE INDUSTRY PROBLEM</span>
+                <h4>Commercial "Hype" Flower</h4>
+              </div>
+              <ul class="comp-list">
+                <li><span>✕</span> Endless recycled clones with watered-down genetics.</li>
+                <li><span>✕</span> Fancy marketing names that all taste and feel the same.</li>
+                <li><span>✕</span> Synthetic bottled salts & rushed commercial harvests.</li>
+                <li><span>✕</span> Sativa / Indica / Hybrid treated as meaningless labels.</li>
+              </ul>
+            </div>
+
+            <!-- Columna de Cuzzo Chronic -->
+            <div class="comp-card comp-cuzzo">
+              <div class="comp-header">
+                <span class="comp-badge good">THE CUZZO STANDARD</span>
+                <h4>Cuzzo Chronic (NY Living Soil)</h4>
+              </div>
+              <ul class="comp-list">
+                <li><span>✓</span> <strong>True Seed-to-Soil:</strong> Grown naturally in rich, living organic soil.</li>
+                <li><span>✓</span> <strong>Authentic Old-School Legends:</strong> Real Jack Herer, Blue Dream, Lemon Haze, OG Kush & GDP.</li>
+                <li><span>✓</span> <strong>Rich Terpenes & Character:</strong> Distinct aromas and true strain effects.</li>
+                <li><span>✓</span> <strong>Family Love, Zero Shortcuts:</strong> Small-batch care in every single harvest.</li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===================================================
+         SECCIÓN C: THE PRIVATE CLUB VAULT + TARJETA EN VIVO (IDEA 6)
+         =================================================== -->
+    <section class="vault-section" id="membership-vault">
+      <div class="section-container">
+        
+        <div class="vault-header">
+          <span class="eyebrow-tag">PRIVATE 21+ COLLECTIVE • NEW YORK</span>
+          <h2 class="section-title">Club Membership & ID Verification</h2>
+          <p>We’re here for the people who appreciate the plant and respect the process. Complete the form below with your ID photo to apply for private access to our harvests.</p>
+        </div>
+
+        <div class="vault-split-layout">
+          
+          <!-- COLUMNA IZQUIERDA: TARJETA VIP INTERACTIVA QUE SE GRABA EN VIVO (IDEA 6) -->
+          <div class="live-card-preview-column">
+            <div class="vip-live-card" id="vip-live-card">
+              <div class="vip-card-shine"></div>
+              <div class="vip-card-top">
+                <div>
+                  <span class="card-brand-mini">NEW YORK ROOTS</span>
+                  <h4>CUZZO CHRONIC</h4>
+                </div>
+                <span class="card-age-seal">21+ VERIFIED</span>
+              </div>
+
+              <div class="vip-card-chip-row">
+                <div class="gold-chip"></div>
+                <span class="id-status-pill" id="live-card-id-status">⏳ ID Photo Pending</span>
+              </div>
+
+              <div class="vip-card-details">
+                <div class="card-detail-item">
+                  <small>MEMBER NAME</small>
+                  <p id="live-card-name">YOUR FULL NAME</p>
+                </div>
+                <div class="card-detail-item">
+                  <small>LOCATION / ADDRESS</small>
+                  <p id="live-card-address">NEW YORK, NY</p>
+                </div>
+              </div>
+
+              <div class="vip-card-footer">
+                <span id="live-card-code">PASS #CUZZO-NY-VIP</span>
+                <span>SEED TO SOIL COLLECTIVE</span>
+              </div>
+            </div>
+
+            <div class="vault-perks-box">
+              <h5>What Your Membership Unlocks:</h5>
+              <ul>
+                <li>🌱 Direct access to small-batch Living Soil harvests (Jack Herer, Blue Dream & more).</li>
+                <li>🍫 Priority reservation on artisanal solventless rosin edibles.</li>
+                <li>🗽 Direct 1-on-1 WhatsApp Concierge with the Cuzzo family.</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- COLUMNA DERECHA: FORMULARIO CON LOS 6 CAMPOS EXACTOS DEL CLIENTE -->
+          <div class="vault-form-column">
+            <form id="membership-form" class="membership-form">
+              
+              <div class="form-row-two">
+                <div class="form-group">
+                  <label for="mem-name">1. Full Name *</label>
+                  <input type="text" id="mem-name" name="fullName" required placeholder="e.g., Marcus Vance" />
+                </div>
+                <div class="form-group">
+                  <label for="mem-phone">2. Phone Number *</label>
+                  <input type="tel" id="mem-phone" name="phone" required placeholder="e.g., (917) 555-0142" />
+                </div>
+              </div>
+
+              <div class="form-row-two">
+                <div class="form-group">
+                  <label for="mem-email">3. Email Address *</label>
+                  <input type="email" id="mem-email" name="email" required placeholder="you@example.com" />
+                </div>
+                <div class="form-group">
+                  <label for="mem-address">4. Full Address *</label>
+                  <input type="text" id="mem-address" name="address" required placeholder="Street, City, State, Zip" />
+                </div>
+              </div>
+
+              <!-- 5. Subida de Foto del ID para verificación de edad (Optimizado para cámara móvil y PC) -->
+              <div class="form-group">
+                <label>5. Pic of ID (21+ Age Verification) *</label>
+                <div class="id-upload-zone" id="id-upload-zone">
+                  <input type="file" id="mem-id-pic" name="idPicture" accept="image/*" required hidden />
+                  
+                  <div id="id-upload-placeholder" class="id-upload-placeholder">
+                    <span class="id-icon">🪪</span>
+                    <p><strong>Tap here to take a photo or upload your ID</strong></p>
+                    <small>Driver's License, State ID, or Passport (Must show 21+ DOB)</small>
+                  </div>
+
+                  <div id="id-preview-container" class="id-preview-container" style="display: none;">
+                    <img id="id-preview-img" src="" alt="ID Preview" />
+                    <div class="id-preview-info">
+                      <span class="id-verified-tag">✓ ID Photo Loaded</span>
+                      <p id="id-filename"></p>
+                      <button type="button" id="change-id-btn" class="change-id-btn">Change ID Photo</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 6. Razón por la que quiere ser miembro -->
+              <div class="form-group">
+                <label for="mem-reason">6. Reason for Wanting to Be a Member *</label>
+                <textarea id="mem-reason" name="reason" rows="3" required placeholder="Tell us why you want to join the Cuzzo family, your favorite classic strains, or who referred you..."></textarea>
+              </div>
+
+              <button type="submit" id="submit-membership-btn" class="btn-gold submit-membership-btn">
+                COMPLETE SIGN UP & VERIFY ID
+              </button>
+            </form>
+
+            <!-- Pantalla de confirmación una vez enviado -->
+            <div id="membership-success" class="membership-success" style="display: none;">
+              <div class="success-seal">🗽✨</div>
+              <h3>Membership Application Ready!</h3>
+              <p class="member-code-box">Member ID: <strong id="generated-member-id">CUZZO-NY-0000</strong></p>
+              <p class="success-instructions">
+                Your membership pass has been generated! Tap the button below to send your registration straight to our family WhatsApp Concierge and <strong>attach your ID photo in the chat</strong> for instant approval.
+              </p>
+              <a href="#" id="whatsapp-final-verify-btn" target="_blank" rel="noopener noreferrer" class="btn-gold whatsapp-verify-cta">
+                💬 SEND APPLICATION & ID ON WHATSAPP
+              </a>
+              <button type="button" id="reset-form-btn" class="btn-outline" style="margin-top: 12px; width: 100%;">
+                Edit Application Info
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================
+         PIE DE PÁGINA (FOOTER)
+         =================================================== -->
+    <footer class="site-footer">
+      <p class="footer-brand">CUZZO CHRONIC — NEW YORK</p>
+      <p class="footer-tagline">Rooted in Quality. Grown with Love. Keeping the Classics Alive.</p>
+      <small>© 2026 Cuzzo Chronic Family Collective. For 21+ verified members only.</small>
+    </footer>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
