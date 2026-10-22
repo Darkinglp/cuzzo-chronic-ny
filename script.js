@@ -2,27 +2,25 @@ window.addEventListener('DOMContentLoaded', () => {
   // ==========================================================
   // CONFIGURACIÓN DEL CLIENTE (WHATSAPP + BASE DE DATOS OPCIONAL)
   // ==========================================================
-  const CLIENT_WHATSAPP_NUMBER = "12125550199"; // Pon aquí el WhatsApp real de EE. UU. (+1)
-  
-  // Si el cliente quiere recibir la foto del ID y los datos directo en su email/base de datos,
-  // solo pega aquí su URL gratuita de Formspree (ej: "https://formspree.io/f/xxxxxxx")
-  const FORMSPREE_ENDPOINT = ""; 
+  const CLIENT_WHATSAPP_NUMBER = "12125550199"; // Número real de EE. UU. (+1)
+  const FORMSPREE_ENDPOINT = ""; // Opcional: URL de Getform.io o Formspree.io
 
   const canvas = document.getElementById('smoke-canvas');
   const ctx = canvas.getContext('2d');
   const introScreen = document.getElementById('intro-screen');
   const mainScene = document.getElementById('main-scene');
   const viewport = document.getElementById('camera-viewport');
-  const swipeHint = document.getElementById('swipe-hint');
   const tableSurface = document.getElementById('table-surface');
   const spotlight = document.getElementById('table-spotlight');
 
   // ==========================================================
-  // 1. CANVAS DE TRICOMAS / POLEN DORADO FLOTANTE (IDEA 1)
+  // 1. CANVAS AMBIENTAL: TRICOMAS + LÁMINAS DE PAPEL + HUMO AL HACER SCROLL
   // ==========================================================
   const triCanvas = document.getElementById('trichome-canvas');
   const triCtx = triCanvas.getContext('2d');
   let particles = [];
+  let rollingPapers = [];
+  let scrollSmokePuffs = [];
 
   function resizeCanvases() {
     canvas.width = window.innerWidth;
@@ -33,44 +31,7 @@ window.addEventListener('DOMContentLoaded', () => {
   resizeCanvases();
   window.addEventListener('resize', resizeCanvases);
 
-  for (let i = 0; i < 42; i++) {
-    particles.push({
-      x: Math.random() * window.innerWidth,
-      y: Math.random() * window.innerHeight,
-      r: Math.random() * 2.2 + 0.6,
-      vx: (Math.random() - 0.5) * 0.35,
-      vy: -Math.random() * 0.45 - 0.1,
-      alpha: Math.random() * 0.55 + 0.15,
-      color: Math.random() > 0.3 ? '#d4af37' : '#4ade80'
-    });
-  }
-
-  function renderTrichomes() {
-    triCtx.clearRect(0, 0, triCanvas.width, triCanvas.height);
-    particles.forEach(p => {
-      p.x += p.vx;
-      p.y += p.vy;
-      if (p.y < 0) p.y = triCanvas.height;
-      if (p.x < 0) p.x = triCanvas.width;
-      if (p.x > triCanvas.width) p.x = 0;
-
-      triCtx.save();
-      triCtx.globalAlpha = p.alpha;
-      triCtx.fillStyle = p.color;
-      triCtx.shadowBlur = 8;
-      triCtx.shadowColor = p.color;
-      triCtx.beginPath();
-      triCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      triCtx.fill();
-      triCtx.restore();
-    });
-    requestAnimationFrame(renderTrichomes);
-  }
-  renderTrichomes();
-
-  // ==========================================================
-  // 2. MOTOR MATEMÁTICO DE HUMO DENSO INICIAL
-  // ==========================================================
+  // Buffer de textura suave de humo para tanto la intro como el scroll
   const puffCanvas = document.createElement('canvas');
   const puffCtx = puffCanvas.getContext('2d');
   const puffSize = 256;
@@ -99,6 +60,167 @@ window.addEventListener('DOMContentLoaded', () => {
   }
   generateSmokeTexture();
 
+  // Partículas de polen dorado y tricomas
+  for (let i = 0; i < 38; i++) {
+    particles.push({
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
+      r: Math.random() * 2 + 0.6,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: -Math.random() * 0.4 - 0.1,
+      alpha: Math.random() * 0.5 + 0.15,
+      color: Math.random() > 0.3 ? '#d4af37' : '#4ade80'
+    });
+  }
+
+  // "Láminas" / Hojillas de papel de cáñamo orgánico flotando en 3D con el scroll
+  for (let i = 0; i < 9; i++) {
+    rollingPapers.push({
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
+      w: 36 + Math.random() * 22,
+      h: 14 + Math.random() * 8,
+      angle: Math.random() * Math.PI * 2,
+      rotSpeed: (Math.random() - 0.5) * 0.008,
+      vx: (Math.random() - 0.5) * 0.25,
+      vy: -0.15 - Math.random() * 0.25,
+      alpha: 0.12 + Math.random() * 0.14
+    });
+  }
+
+  // Detector de Scroll para disparar humo interactivo y mover las láminas
+  let lastScrollY = window.scrollY;
+  const smokeCurtainLeft = document.getElementById('smoke-curtain-left');
+  const smokeCurtainRight = document.getElementById('smoke-curtain-right');
+
+  window.addEventListener('scroll', () => {
+    const currentScrollY = window.scrollY;
+    const delta = currentScrollY - lastScrollY;
+    lastScrollY = currentScrollY;
+
+    // Al hacer scroll, generamos nubes de humo suaves que cruzan la pantalla
+    if (Math.abs(delta) > 4 && scrollSmokePuffs.length < 18) {
+      scrollSmokePuffs.push({
+        x: Math.random() * triCanvas.width,
+        y: delta > 0 ? triCanvas.height + 60 : -60,
+        vx: (Math.random() - 0.5) * 1.8,
+        vy: delta > 0 ? -(2 + Math.random() * 3) : (2 + Math.random() * 3),
+        size: 180 + Math.random() * 140,
+        rotation: Math.random() * Math.PI * 2,
+        opacity: 0.22,
+        life: 0,
+        maxLife: 90
+      });
+    }
+
+    // Mover las láminas flotantes con efecto parallax al bajar
+    rollingPapers.forEach(rp => {
+      rp.y -= delta * 0.18;
+      rp.angle += delta * 0.002;
+      if (rp.y < -50) rp.y = triCanvas.height + 40;
+      if (rp.y > triCanvas.height + 50) rp.y = -40;
+    });
+
+    // Abrir las cortinas de humo en la sección de láminas
+    if (smokeCurtainLeft && smokeCurtainRight) {
+      const shift = Math.min(120, currentScrollY * 0.15);
+      smokeCurtainLeft.style.transform = `translateX(-${shift}px)`;
+      smokeCurtainRight.style.transform = `translateX(${shift}px)`;
+    }
+  }, { passive: true });
+
+  function renderAmbientAndScrollFX() {
+    triCtx.clearRect(0, 0, triCanvas.width, triCanvas.height);
+
+    // 1. Dibujar polen dorado y tricomas
+    particles.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.y < 0) p.y = triCanvas.height;
+      if (p.x < 0) p.x = triCanvas.width;
+      if (p.x > triCanvas.width) p.x = 0;
+
+      triCtx.save();
+      triCtx.globalAlpha = p.alpha;
+      triCtx.fillStyle = p.color;
+      triCtx.shadowBlur = 8;
+      triCtx.shadowColor = p.color;
+      triCtx.beginPath();
+      triCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      triCtx.fill();
+      triCtx.restore();
+    });
+
+    // 2. Dibujar las "Láminas" (Papeles de enrolar traslúcidos con filo dorado)
+    rollingPapers.forEach(rp => {
+      rp.x += rp.vx;
+      rp.y += rp.vy;
+      rp.angle += rp.rotSpeed;
+      if (rp.y < -50) rp.y = triCanvas.height + 40;
+      if (rp.x < -50) rp.x = triCanvas.width + 40;
+      if (rp.x > triCanvas.width + 50) rp.x = -40;
+
+      triCtx.save();
+      triCtx.translate(rp.x, rp.y);
+      triCtx.rotate(rp.angle);
+      triCtx.globalAlpha = rp.alpha;
+      // Cuerpo del papel de cáñamo orgánico
+      triCtx.fillStyle = '#d6b485';
+      triCtx.strokeStyle = '#d4af37';
+      triCtx.lineWidth = 1;
+      triCtx.beginPath();
+      triCtx.roundRect(-rp.w / 2, -rp.h / 2, rp.w, rp.h, 3);
+      triCtx.fill();
+      triCtx.stroke();
+      // Banda de goma dorada característica de la lámina
+      triCtx.fillStyle = '#f5e6b3';
+      triCtx.fillRect(-rp.w / 2, -rp.h / 2, rp.w, 3);
+      triCtx.restore();
+    });
+
+    // 3. Dibujar volutas de humo reactivas cuando el usuario hace scroll
+    for (let i = scrollSmokePuffs.length - 1; i >= 0; i--) {
+      const sp = scrollSmokePuffs[i];
+      sp.life++;
+      sp.x += sp.vx;
+      sp.y += sp.vy;
+      sp.size += 1.2;
+      sp.rotation += 0.008;
+      const prog = sp.life / sp.maxLife;
+      const alpha = (1 - prog) * sp.opacity;
+
+      if (sp.life >= sp.maxLife || alpha <= 0.01) {
+        scrollSmokePuffs.splice(i, 1);
+        continue;
+      }
+
+      triCtx.save();
+      triCtx.translate(sp.x, sp.y);
+      triCtx.rotate(sp.rotation);
+      triCtx.globalAlpha = alpha;
+      triCtx.drawImage(puffCanvas, -sp.size / 2, -sp.size / 2, sp.size, sp.size);
+      triCtx.restore();
+    }
+
+    requestAnimationFrame(renderAmbientAndScrollFX);
+  }
+  renderAmbientAndScrollFX();
+
+  // Observador para animar las láminas y bloques de historia cuando entran en pantalla
+  const revealElements = document.querySelectorAll('.reveal-on-scroll');
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in-view');
+      }
+    });
+  }, { threshold: 0.15 });
+
+  revealElements.forEach(el => revealObserver.observe(el));
+
+  // ==========================================================
+  // 2. MOTOR MATEMÁTICO DE HUMO DENSO INICIAL
+  // ==========================================================
   class MachinePuff {
     constructor() { this.init(); }
     init() {
@@ -154,7 +276,7 @@ window.addEventListener('DOMContentLoaded', () => {
   renderSmoke();
 
   // ==========================================================
-  // 3. VERIFICACIÓN DE EDAD (21+) Y ENTRADA AL SHOWROOM
+  // 3. VERIFICACIÓN DE EDAD (21+) Y CENTRADO EN CELULAR
   // ==========================================================
   const ageGate = document.getElementById('age-gate');
   const btnAgeYes = document.getElementById('btn-age-yes');
@@ -193,16 +315,11 @@ window.addEventListener('DOMContentLoaded', () => {
   }
   window.addEventListener('resize', centerTableOnMobile);
 
-  if (viewport) {
-    viewport.addEventListener('scroll', () => { if (swipeHint) swipeHint.style.display = 'none'; }, { once: true });
-    viewport.addEventListener('touchstart', () => { if (swipeHint) swipeHint.style.display = 'none'; }, { once: true });
-  }
-
   // ==========================================================
-  // 4. CATÁLOGO DE CEPAS Y COMESTIBLES CON FOTOS
+  // 4. CATÁLOGO COMPLETO CON TODOS LOS PRODUCTOS
   // ==========================================================
   function createWhatsAppLink(itemName, categoryType) {
-    const chillMessage = `Yo Cuzzo Chronic fam! 🗽🌱 Just checked out your interactive table and I'm really vibing with the *${itemName}* (${categoryType}). Love that you guys grow in Living Soil and keep the real NY classics alive. Can I get more info on this harvest?`;
+    const chillMessage = `Yo Cuzzo Chronic fam! 🗽🌱 Just checked out your interactive rolling tray and I'm really vibing with the *${itemName}* (${categoryType}). Love that you guys grow in Living Soil and keep the real NY classics alive. Can I get more info on this harvest?`;
     return `https://wa.me/${CLIENT_WHATSAPP_NUMBER}?text=${encodeURIComponent(chillMessage)}`;
   }
 
@@ -278,6 +395,13 @@ window.addEventListener('DOMContentLoaded', () => {
           genetics: "Single-Origin Cacao × OG Kush Infusion",
           desc: "Velvety dark chocolate crafted in small NY batches, finished with edible gold flakes and slow-acting full-body warmth.",
           image: "https://images.unsplash.com/photo-1548907040-4baa42d10919?auto=format&fit=crop&w=400&q=80"
+        },
+        {
+          name: "Raw NY Wildflower Infused Honey",
+          badge: "ORGANIC INFUSION",
+          genetics: "Local NY Honey × Jack Herer Terpenes",
+          desc: "Perfect for your morning tea or evening unwind. Pure botanical synergy straight from the family harvest.",
+          image: "https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&w=400&q=80"
         }
       ]
     },
@@ -286,10 +410,10 @@ window.addEventListener('DOMContentLoaded', () => {
       desc: "Rooted in Quality. Grown with Love. Keeping the Classics Alive.",
       items: [
         {
-          name: "Apply for Cuzzo Chronic Membership",
-          badge: "PRIVATE CLUB",
+          name: "Chat Directly With the Cuzzo Family",
+          badge: "NY ROOTS",
           genetics: "Family-Owned & Operated in New York",
-          desc: "Ready to experience real living soil flower? Complete our Membership Sign Up below with your ID or message us on WhatsApp.",
+          desc: "Have questions about our living soil process or current batch availability? Hit us up on WhatsApp.",
           image: "https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?auto=format&fit=crop&w=400&q=80"
         }
       ]
@@ -332,21 +456,17 @@ window.addEventListener('DOMContentLoaded', () => {
     const desc = item.getAttribute('data-desc');
     activeCategoryName = category;
 
-    if (hudEyebrow) hudEyebrow.textContent = "SELECTED ON THE TABLE";
+    if (hudEyebrow) hudEyebrow.textContent = "SELECTED ON THE TRAY";
     if (hudTitle) hudTitle.textContent = category;
     if (hudDesc) hudDesc.textContent = desc;
     if (hudLink) {
-      hudLink.textContent = category === "VIP Membership" ? "Go to Member Sign Up" : `Explore ${category}`;
+      hudLink.textContent = category === "VIP Membership" ? "Open VIP Vault" : `Inspect Selection`;
     }
   }
 
-  function scrollToMembership(strainName = "") {
+  function scrollToMembership() {
     modal.classList.remove('active');
     const vaultSection = document.getElementById('membership-vault');
-    const reasonField = document.getElementById('mem-reason');
-    if (strainName && reasonField && !reasonField.value) {
-      reasonField.value = `I'd love to become a verified member to access your NY Living Soil harvest (especially ${strainName})!`;
-    }
     if (vaultSection) {
       vaultSection.scrollIntoView({ behavior: 'smooth' });
     }
@@ -376,6 +496,15 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // También si hacen clic en cualquiera de las 3 Láminas coleccionables al bajar, abre el catálogo correspondiente
+  document.querySelectorAll('.lamina-sheet').forEach((sheet, idx) => {
+    sheet.style.cursor = 'pointer';
+    sheet.addEventListener('click', () => {
+      if (idx === 0) openCatalogModal("Jack Herer (House Favorite)");
+      else openCatalogModal("Old-School Classics");
+    });
+  });
+
   function openCatalogModal(categoryKey) {
     const data = catalogData[categoryKey] || catalogData["Jack Herer (House Favorite)"];
     modalTitle.textContent = data.title;
@@ -397,21 +526,12 @@ window.addEventListener('DOMContentLoaded', () => {
           <p>${prod.desc}</p>
         </div>
         <div class="product-actions-col">
-          <button type="button" class="member-unlock-btn" data-strain="${prod.name}">
-            🔑 Member Sign Up
-          </button>
           <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="whatsapp-inquire-btn">
             💬 Ask on WhatsApp
           </a>
         </div>
       `;
       modalProductsList.appendChild(card);
-    });
-
-    modalProductsList.querySelectorAll('.member-unlock-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        scrollToMembership(btn.getAttribute('data-strain'));
-      });
     });
 
     modal.classList.add('active');
@@ -423,7 +543,7 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 
   // ==========================================================
-  // 5. TARJETA VIP EN VIVO + SUBIDA DE FOTO DE ID (IDEA 6)
+  // 5. TARJETA VIP EN VIVO + SUBIDA DE FOTO DE ID
   // ==========================================================
   const memNameInput = document.getElementById('mem-name');
   const memAddressInput = document.getElementById('mem-address');
@@ -444,7 +564,6 @@ window.addEventListener('DOMContentLoaded', () => {
   const membershipSuccess = document.getElementById('membership-success');
   const resetFormBtn = document.getElementById('reset-form-btn');
 
-  // Grabado en tiempo real sobre la tarjeta VIP mientras el usuario escribe
   memNameInput.addEventListener('input', (e) => {
     liveCardName.textContent = e.target.value.trim().toUpperCase() || "YOUR FULL NAME";
   });
@@ -453,7 +572,6 @@ window.addEventListener('DOMContentLoaded', () => {
     liveCardAddress.textContent = e.target.value.trim().toUpperCase() || "NEW YORK, NY";
   });
 
-  // Subida de foto del ID (funciona en celular y PC)
   idUploadZone.addEventListener('click', (e) => {
     if (e.target !== changeIdBtn) idFileInput.click();
   });
@@ -472,7 +590,6 @@ window.addEventListener('DOMContentLoaded', () => {
         idFilename.textContent = file.name;
         idPlaceholder.style.display = 'none';
         idPreviewContainer.style.display = 'flex';
-        // Actualizar estado en la tarjeta VIP en vivo
         liveCardIdStatus.textContent = "✓ 21+ ID Photo Attached";
         liveCardIdStatus.classList.add('verified');
       };
@@ -480,7 +597,6 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Envío del Formulario (Dual: Base de Datos/Email + WhatsApp Concierge)
   membershipForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -500,7 +616,6 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('generated-member-id').textContent = randomCode;
     liveCardCode.textContent = `PASS #${randomCode}`;
 
-    // Si configuraste un endpoint de Formspree/Base de Datos, envía la foto y datos en segundo plano
     if (FORMSPREE_ENDPOINT) {
       try {
         const formData = new FormData(membershipForm);
@@ -515,7 +630,6 @@ window.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // Preparar el enlace de WhatsApp con toda la información organizada
     const applicationMessage = 
       `🗽 *NEW CUZZO CHRONIC MEMBERSHIP SIGN UP* 🌱\n` +
       `*Member Pass ID:* ${randomCode}\n\n` +
