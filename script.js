@@ -1,9 +1,11 @@
 window.addEventListener('DOMContentLoaded', () => {
   // ==========================================================
-  // CONFIGURACIÓN DEL CLIENTE (WHATSAPP + BASE DE DATOS OPCIONAL)
+  // CONFIGURACIÓN DEL NÚMERO DE WHATSAPP DEL CLIENTE (USA +1)
   // ==========================================================
   const CLIENT_WHATSAPP_NUMBER = "12125550199"; // Número real de EE. UU. (+1)
-  const FORMSPREE_ENDPOINT = ""; // Opcional: URL de Getform.io o Formspree.io
+
+  // Imagen de los 5 empaques de Cuzzo's Chronic
+  const PACKAGES_IMAGE_PATH = "empaques.jpg";
 
   const canvas = document.getElementById('smoke-canvas');
   const ctx = canvas.getContext('2d');
@@ -13,14 +15,25 @@ window.addEventListener('DOMContentLoaded', () => {
   const tableSurface = document.getElementById('table-surface');
   const spotlight = document.getElementById('table-spotlight');
 
+  // Si el usuario guarda un PNG transparente "cogollo.png" en su carpeta,
+  // quitamos el clip-path de recorte para usar la transparencia natural de su PNG
+  const testCustomBud = new Image();
+  testCustomBud.src = "cogollo.png";
+  testCustomBud.onload = () => {
+    document.querySelectorAll('.real-nug').forEach(img => {
+      img.style.clipPath = 'none';
+    });
+  };
+
   // ==========================================================
-  // 1. CANVAS AMBIENTAL: TRICOMAS + LÁMINAS DE PAPEL + HUMO AL HACER SCROLL
+  // 1. FONDO ANIMADO: EMPAQUES GRANDES + PARTÍCULAS + HUMO
   // ==========================================================
   const triCanvas = document.getElementById('trichome-canvas');
   const triCtx = triCanvas.getContext('2d');
   let particles = [];
-  let rollingPapers = [];
+  let floatingPackages = [];
   let scrollSmokePuffs = [];
+  let croppedBagSprites = [];
 
   function resizeCanvases() {
     canvas.width = window.innerWidth;
@@ -31,7 +44,112 @@ window.addEventListener('DOMContentLoaded', () => {
   resizeCanvases();
   window.addEventListener('resize', resizeCanvases);
 
-  // Buffer de textura suave de humo para tanto la intro como el scroll
+  // Recortar automáticamente las 5 bolsas de empaques.jpg
+  const rawPackImg = new Image();
+  rawPackImg.crossOrigin = "anonymous";
+  rawPackImg.src = PACKAGES_IMAGE_PATH;
+  rawPackImg.onload = () => {
+    const W = rawPackImg.width;
+    const H = rawPackImg.height;
+    const regions = [
+      { x: 0.01, y: 0.03, w: 0.32, h: 0.46 },
+      { x: 0.33, y: 0.03, w: 0.33, h: 0.46 },
+      { x: 0.66, y: 0.03, w: 0.33, h: 0.46 },
+      { x: 0.14, y: 0.51, w: 0.35, h: 0.47 },
+      { x: 0.50, y: 0.51, w: 0.35, h: 0.47 }
+    ];
+
+    croppedBagSprites = regions.map(r => {
+      const sw = Math.floor(W * r.w);
+      const sh = Math.floor(H * r.h);
+      const off = document.createElement('canvas');
+      off.width = sw;
+      off.height = sh;
+      const octx = off.getContext('2d');
+      octx.drawImage(rawPackImg, Math.floor(W * r.x), Math.floor(H * r.y), sw, sh, 0, 0, sw, sh);
+
+      try {
+        const imgData = octx.getImageData(0, 0, sw, sh);
+        const d = imgData.data;
+        for (let y = 0; y < sh; y++) {
+          for (let x = 0; x < sw; x++) {
+            const idx = (y * sw + x) * 4;
+            if (d[idx] < 18 && d[idx + 1] < 18 && d[idx + 2] < 18) {
+              d[idx + 3] = 0;
+            } else {
+              break;
+            }
+          }
+          for (let x = sw - 1; x >= 0; x--) {
+            const idx = (y * sw + x) * 4;
+            if (d[idx] < 18 && d[idx + 1] < 18 && d[idx + 2] < 18) {
+              d[idx + 3] = 0;
+            } else {
+              break;
+            }
+          }
+        }
+        octx.putImageData(imgData, 0, 0);
+      } catch (e) {}
+      return off;
+    });
+  };
+
+  function drawFallbackBag(ctx, variant, w, h) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(-w / 2, -h / 2, w, h, 10);
+    if (variant === 0) {
+      ctx.fillStyle = '#111213';
+      ctx.strokeStyle = '#ef4444';
+    } else if (variant === 1) {
+      ctx.fillStyle = '#a3e635';
+      ctx.strokeStyle = '#dc2626';
+    } else if (variant === 2) {
+      ctx.fillStyle = '#facc15';
+      ctx.strokeStyle = '#ec4899';
+    } else if (variant === 3) {
+      ctx.fillStyle = '#0c0a08';
+      ctx.strokeStyle = '#d4af37';
+    } else {
+      ctx.fillStyle = '#1d4ed8';
+      ctx.strokeStyle = '#ec4899';
+    }
+    ctx.lineWidth = 2.2;
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(-w / 2 + 5, -h / 2 + 12);
+    ctx.lineTo(w / 2 - 5, -h / 2 + 12);
+    ctx.stroke();
+
+    ctx.fillStyle = variant === 3 ? '#d4af37' : '#ef4444';
+    ctx.fillRect(-w * 0.4, -8, w * 0.8, 18);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = `bold ${Math.max(9, Math.floor(w * 0.14))}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText("CUZZO'S", 0, 4);
+    ctx.restore();
+  }
+
+  for (let i = 0; i < 8; i++) {
+    floatingPackages.push({
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
+      w: 88 + Math.random() * 38,
+      h: 114 + Math.random() * 48,
+      angle: (Math.random() - 0.5) * 0.5,
+      rotSpeed: (Math.random() - 0.5) * 0.003,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: -0.24 - Math.random() * 0.26,
+      alpha: 0.22 + Math.random() * 0.14,
+      variant: i % 5
+    });
+  }
+
   const puffCanvas = document.createElement('canvas');
   const puffCtx = puffCanvas.getContext('2d');
   const puffSize = 256;
@@ -60,7 +178,6 @@ window.addEventListener('DOMContentLoaded', () => {
   }
   generateSmokeTexture();
 
-  // Partículas de polen dorado y tricomas
   for (let i = 0; i < 38; i++) {
     particles.push({
       x: Math.random() * window.innerWidth,
@@ -69,26 +186,10 @@ window.addEventListener('DOMContentLoaded', () => {
       vx: (Math.random() - 0.5) * 0.3,
       vy: -Math.random() * 0.4 - 0.1,
       alpha: Math.random() * 0.5 + 0.15,
-      color: Math.random() > 0.3 ? '#d4af37' : '#4ade80'
+      color: Math.random() > 0.35 ? '#ffffff' : '#d4af37'
     });
   }
 
-  // "Láminas" / Hojillas de papel de cáñamo orgánico flotando en 3D con el scroll
-  for (let i = 0; i < 9; i++) {
-    rollingPapers.push({
-      x: Math.random() * window.innerWidth,
-      y: Math.random() * window.innerHeight,
-      w: 36 + Math.random() * 22,
-      h: 14 + Math.random() * 8,
-      angle: Math.random() * Math.PI * 2,
-      rotSpeed: (Math.random() - 0.5) * 0.008,
-      vx: (Math.random() - 0.5) * 0.25,
-      vy: -0.15 - Math.random() * 0.25,
-      alpha: 0.12 + Math.random() * 0.14
-    });
-  }
-
-  // Detector de Scroll para disparar humo interactivo y mover las láminas
   let lastScrollY = window.scrollY;
   const smokeCurtainLeft = document.getElementById('smoke-curtain-left');
   const smokeCurtainRight = document.getElementById('smoke-curtain-right');
@@ -98,8 +199,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const delta = currentScrollY - lastScrollY;
     lastScrollY = currentScrollY;
 
-    // Al hacer scroll, generamos nubes de humo suaves que cruzan la pantalla
-    if (Math.abs(delta) > 4 && scrollSmokePuffs.length < 18) {
+    if (Math.abs(delta) > 4 && scrollSmokePuffs.length < 16) {
       scrollSmokePuffs.push({
         x: Math.random() * triCanvas.width,
         y: delta > 0 ? triCanvas.height + 60 : -60,
@@ -107,21 +207,19 @@ window.addEventListener('DOMContentLoaded', () => {
         vy: delta > 0 ? -(2 + Math.random() * 3) : (2 + Math.random() * 3),
         size: 180 + Math.random() * 140,
         rotation: Math.random() * Math.PI * 2,
-        opacity: 0.22,
+        opacity: 0.2,
         life: 0,
         maxLife: 90
       });
     }
 
-    // Mover las láminas flotantes con efecto parallax al bajar
-    rollingPapers.forEach(rp => {
-      rp.y -= delta * 0.18;
-      rp.angle += delta * 0.002;
-      if (rp.y < -50) rp.y = triCanvas.height + 40;
-      if (rp.y > triCanvas.height + 50) rp.y = -40;
+    floatingPackages.forEach(pkg => {
+      pkg.y -= delta * 0.22;
+      pkg.angle += delta * 0.0012;
+      if (pkg.y < -140) pkg.y = triCanvas.height + 120;
+      if (pkg.y > triCanvas.height + 140) pkg.y = -120;
     });
 
-    // Abrir las cortinas de humo en la sección de láminas
     if (smokeCurtainLeft && smokeCurtainRight) {
       const shift = Math.min(120, currentScrollY * 0.15);
       smokeCurtainLeft.style.transform = `translateX(-${shift}px)`;
@@ -132,7 +230,28 @@ window.addEventListener('DOMContentLoaded', () => {
   function renderAmbientAndScrollFX() {
     triCtx.clearRect(0, 0, triCanvas.width, triCanvas.height);
 
-    // 1. Dibujar polen dorado y tricomas
+    floatingPackages.forEach(pkg => {
+      pkg.x += pkg.vx;
+      pkg.y += pkg.vy;
+      pkg.angle += pkg.rotSpeed;
+      if (pkg.y < -140) pkg.y = triCanvas.height + 120;
+      if (pkg.x < -140) pkg.x = triCanvas.width + 120;
+      if (pkg.x > triCanvas.width + 140) pkg.x = -120;
+
+      triCtx.save();
+      triCtx.translate(pkg.x, pkg.y);
+      triCtx.rotate(pkg.angle);
+      triCtx.globalAlpha = pkg.alpha;
+
+      if (croppedBagSprites.length === 5) {
+        const sprite = croppedBagSprites[pkg.variant];
+        triCtx.drawImage(sprite, -pkg.w / 2, -pkg.h / 2, pkg.w, pkg.h);
+      } else {
+        drawFallbackBag(triCtx, pkg.variant, pkg.w, pkg.h);
+      }
+      triCtx.restore();
+    });
+
     particles.forEach(p => {
       p.x += p.vx;
       p.y += p.vy;
@@ -151,34 +270,6 @@ window.addEventListener('DOMContentLoaded', () => {
       triCtx.restore();
     });
 
-    // 2. Dibujar las "Láminas" (Papeles de enrolar traslúcidos con filo dorado)
-    rollingPapers.forEach(rp => {
-      rp.x += rp.vx;
-      rp.y += rp.vy;
-      rp.angle += rp.rotSpeed;
-      if (rp.y < -50) rp.y = triCanvas.height + 40;
-      if (rp.x < -50) rp.x = triCanvas.width + 40;
-      if (rp.x > triCanvas.width + 50) rp.x = -40;
-
-      triCtx.save();
-      triCtx.translate(rp.x, rp.y);
-      triCtx.rotate(rp.angle);
-      triCtx.globalAlpha = rp.alpha;
-      // Cuerpo del papel de cáñamo orgánico
-      triCtx.fillStyle = '#d6b485';
-      triCtx.strokeStyle = '#d4af37';
-      triCtx.lineWidth = 1;
-      triCtx.beginPath();
-      triCtx.roundRect(-rp.w / 2, -rp.h / 2, rp.w, rp.h, 3);
-      triCtx.fill();
-      triCtx.stroke();
-      // Banda de goma dorada característica de la lámina
-      triCtx.fillStyle = '#f5e6b3';
-      triCtx.fillRect(-rp.w / 2, -rp.h / 2, rp.w, 3);
-      triCtx.restore();
-    });
-
-    // 3. Dibujar volutas de humo reactivas cuando el usuario hace scroll
     for (let i = scrollSmokePuffs.length - 1; i >= 0; i--) {
       const sp = scrollSmokePuffs[i];
       sp.life++;
@@ -206,20 +297,28 @@ window.addEventListener('DOMContentLoaded', () => {
   }
   renderAmbientAndScrollFX();
 
-  // Observador para animar las láminas y bloques de historia cuando entran en pantalla
-  const revealElements = document.querySelectorAll('.reveal-on-scroll');
-  const revealObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('in-view');
-      }
-    });
-  }, { threshold: 0.15 });
+  // ==========================================================
+  // 2. CAMBIO DINÁMICO DE TEMA AL HACER SCROLL (NEGRO ➔ BLANCO ➔ NEGRO)
+  // ==========================================================
+  const whiteStackCard = document.getElementById('roots-section');
+  const finalDarkStackCard = document.getElementById('why-cuzzo-section');
 
-  revealElements.forEach(el => revealObserver.observe(el));
+  function updateThemeByScroll() {
+    if (!whiteStackCard || !finalDarkStackCard) return;
+    const whiteRect = whiteStackCard.getBoundingClientRect();
+    const darkFinalRect = finalDarkStackCard.getBoundingClientRect();
+    const triggerLine = window.innerHeight * 0.52;
+
+    if (whiteRect.top <= triggerLine && darkFinalRect.top > triggerLine) {
+      document.body.classList.add('theme-light-active');
+    } else {
+      document.body.classList.remove('theme-light-active');
+    }
+  }
+  window.addEventListener('scroll', updateThemeByScroll, { passive: true });
 
   // ==========================================================
-  // 2. MOTOR MATEMÁTICO DE HUMO DENSO INICIAL
+  // 3. MOTOR MATEMÁTICO DE HUMO DENSO INICIAL
   // ==========================================================
   class MachinePuff {
     constructor() { this.init(); }
@@ -276,7 +375,7 @@ window.addEventListener('DOMContentLoaded', () => {
   renderSmoke();
 
   // ==========================================================
-  // 3. VERIFICACIÓN DE EDAD (21+) Y CENTRADO EN CELULAR
+  // 4. VERIFICACIÓN DE EDAD (21+) Y CENTRADO EN CELULAR
   // ==========================================================
   const ageGate = document.getElementById('age-gate');
   const btnAgeYes = document.getElementById('btn-age-yes');
@@ -316,12 +415,18 @@ window.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('resize', centerTableOnMobile);
 
   // ==========================================================
-  // 4. CATÁLOGO COMPLETO CON TODOS LOS PRODUCTOS
+  // 5. CATÁLOGO DE PRODUCTOS Y BOLSAS HERMÉTICAS + WHATSAPP
   // ==========================================================
   function createWhatsAppLink(itemName, categoryType) {
-    const chillMessage = `Yo Cuzzo Chronic fam! 🗽🌱 Just checked out your interactive rolling tray and I'm really vibing with the *${itemName}* (${categoryType}). Love that you guys grow in Living Soil and keep the real NY classics alive. Can I get more info on this harvest?`;
+    const chillMessage = `Yo Cuzzo's Chronic fam! 🗽🌱 Just checked out your interactive rolling tray and I'm really vibing with the *${itemName}* (${categoryType}). Love that you guys grow in Living Soil and keep the real NY classics alive. Can I get more info on this harvest?`;
     return `https://wa.me/${CLIENT_WHATSAPP_NUMBER}?text=${encodeURIComponent(chillMessage)}`;
   }
+
+  const generalWaUrl = createWhatsAppLink("Cuzzo's Chronic Menu & Harvest", "General Inquiry");
+  const navWaBtn = document.getElementById('nav-whatsapp-btn');
+  const bottomWaBtn = document.getElementById('bottom-whatsapp-cta');
+  if (navWaBtn) navWaBtn.href = generalWaUrl;
+  if (bottomWaBtn) bottomWaBtn.href = generalWaUrl;
 
   const catalogData = {
     "Jack Herer (House Favorite)": {
@@ -378,12 +483,25 @@ window.addEventListener('DOMContentLoaded', () => {
         }
       ]
     },
+    "Signature Collector Packs": {
+      title: "Cuzzo's Chronic — Signature Art Packs",
+      desc: "Our custom New York collector pouches designed to lock in living-soil freshness and terpene character.",
+      items: [
+        {
+          name: "Cuzzo's Chronic — Full Collector Series",
+          badge: "NY ART PACKS",
+          genetics: "Black Classic • Pop-Art Legends • Luxury Gold CC • Sprinkles Edition",
+          desc: "Sealed fresh from our family harvest. Ask on WhatsApp for available strains inside each limited-edition Cuzzo's Chronic pouch.",
+          image: PACKAGES_IMAGE_PATH
+        }
+      ]
+    },
     "Artisanal Edibles": {
       title: "Small-Batch Craft Edibles",
       desc: "Infused with solventless rosin pressed directly from our living soil flower. Full-spectrum effects with true strain character.",
       items: [
         {
-          name: "Cuzzo Solventless Live Rosin Chews",
+          name: "Cuzzo's Solventless Live Rosin Chews",
           badge: "FULL SPECTRUM",
           genetics: "Infused with Blue Dream & Lemon Haze Rosin",
           desc: "Handcrafted wild berry & citrus pectin gummies. Clean ingredients, rich natural fruit, and zero distillate aftertaste.",
@@ -410,7 +528,7 @@ window.addEventListener('DOMContentLoaded', () => {
       desc: "Rooted in Quality. Grown with Love. Keeping the Classics Alive.",
       items: [
         {
-          name: "Chat Directly With the Cuzzo Family",
+          name: "Chat Directly With the Cuzzo's Chronic Family",
           badge: "NY ROOTS",
           genetics: "Family-Owned & Operated in New York",
           desc: "Have questions about our living soil process or current batch availability? Hit us up on WhatsApp.",
@@ -420,7 +538,6 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  // Modal de catálogo
   const modalHTML = `
     <div class="store-modal-overlay" id="store-modal">
       <div class="store-modal-content">
@@ -460,15 +577,7 @@ window.addEventListener('DOMContentLoaded', () => {
     if (hudTitle) hudTitle.textContent = category;
     if (hudDesc) hudDesc.textContent = desc;
     if (hudLink) {
-      hudLink.textContent = category === "VIP Membership" ? "Open VIP Vault" : `Inspect Selection`;
-    }
-  }
-
-  function scrollToMembership() {
-    modal.classList.remove('active');
-    const vaultSection = document.getElementById('membership-vault');
-    if (vaultSection) {
-      vaultSection.scrollIntoView({ behavior: 'smooth' });
+      hudLink.textContent = `Inspect Selection`;
     }
   }
 
@@ -477,31 +586,38 @@ window.addEventListener('DOMContentLoaded', () => {
     item.addEventListener('click', (e) => {
       e.stopPropagation();
       updateHUD(item);
-      if (activeCategoryName === "VIP Membership") {
-        scrollToMembership();
-      } else {
-        openCatalogModal(activeCategoryName);
-      }
+      openCatalogModal(activeCategoryName);
     });
   });
 
   if (hudLink) {
     hudLink.addEventListener('click', (e) => {
       e.preventDefault();
-      if (activeCategoryName === "VIP Membership") {
-        scrollToMembership();
-      } else {
-        openCatalogModal(activeCategoryName);
-      }
+      openCatalogModal(activeCategoryName);
     });
   }
 
-  // También si hacen clic en cualquiera de las 3 Láminas coleccionables al bajar, abre el catálogo correspondiente
-  document.querySelectorAll('.lamina-sheet').forEach((sheet, idx) => {
-    sheet.style.cursor = 'pointer';
+  const laminaSheets = document.querySelectorAll('.lamina-sheet');
+  laminaSheets.forEach((sheet) => {
+    const statusText = sheet.querySelector('.seal-status-text');
+    sheet.addEventListener('mouseenter', () => {
+      if (statusText) statusText.textContent = "🔓 SEAL OPENED • FRESH LIVING SOIL BUDS";
+    });
+    sheet.addEventListener('mouseleave', () => {
+      if (!sheet.classList.contains('bag-open') && statusText) {
+        statusText.textContent = "🔒 HERMETIC LIVING SOIL SEAL • TAP TO OPEN";
+      }
+    });
+
     sheet.addEventListener('click', () => {
-      if (idx === 0) openCatalogModal("Jack Herer (House Favorite)");
-      else openCatalogModal("Old-School Classics");
+      const cat = sheet.getAttribute('data-category') || "Old-School Classics";
+      if (window.innerWidth <= 900 && !sheet.classList.contains('bag-open')) {
+        laminaSheets.forEach(s => s.classList.remove('bag-open'));
+        sheet.classList.add('bag-open');
+        if (statusText) statusText.textContent = "🔓 SEAL OPENED • TAP AGAIN TO INSPECT";
+      } else {
+        openCatalogModal(cat);
+      }
     });
   });
 
@@ -517,7 +633,7 @@ window.addEventListener('DOMContentLoaded', () => {
       card.className = 'product-card';
       card.innerHTML = `
         <div class="product-thumb-wrapper">
-          <img src="${prod.image}" alt="${prod.name}" loading="lazy" />
+          <img src="${prod.image}" onerror="this.src='https://images.unsplash.com/photo-1603909223429-69bb7101f420?auto=format&fit=crop&w=400&q=80'" alt="${prod.name}" loading="lazy" />
           <span class="strain-badge">${prod.badge}</span>
         </div>
         <div class="product-info">
@@ -541,116 +657,4 @@ window.addEventListener('DOMContentLoaded', () => {
   modal.addEventListener('click', (e) => {
     if (e.target === modal) modal.classList.remove('active');
   });
-
-  // ==========================================================
-  // 5. TARJETA VIP EN VIVO + SUBIDA DE FOTO DE ID
-  // ==========================================================
-  const memNameInput = document.getElementById('mem-name');
-  const memAddressInput = document.getElementById('mem-address');
-  const liveCardName = document.getElementById('live-card-name');
-  const liveCardAddress = document.getElementById('live-card-address');
-  const liveCardIdStatus = document.getElementById('live-card-id-status');
-  const liveCardCode = document.getElementById('live-card-code');
-
-  const idUploadZone = document.getElementById('id-upload-zone');
-  const idFileInput = document.getElementById('mem-id-pic');
-  const idPlaceholder = document.getElementById('id-upload-placeholder');
-  const idPreviewContainer = document.getElementById('id-preview-container');
-  const idPreviewImg = document.getElementById('id-preview-img');
-  const idFilename = document.getElementById('id-filename');
-  const changeIdBtn = document.getElementById('change-id-btn');
-
-  const membershipForm = document.getElementById('membership-form');
-  const membershipSuccess = document.getElementById('membership-success');
-  const resetFormBtn = document.getElementById('reset-form-btn');
-
-  memNameInput.addEventListener('input', (e) => {
-    liveCardName.textContent = e.target.value.trim().toUpperCase() || "YOUR FULL NAME";
-  });
-
-  memAddressInput.addEventListener('input', (e) => {
-    liveCardAddress.textContent = e.target.value.trim().toUpperCase() || "NEW YORK, NY";
-  });
-
-  idUploadZone.addEventListener('click', (e) => {
-    if (e.target !== changeIdBtn) idFileInput.click();
-  });
-
-  changeIdBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    idFileInput.click();
-  });
-
-  idFileInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        idPreviewImg.src = event.target.result;
-        idFilename.textContent = file.name;
-        idPlaceholder.style.display = 'none';
-        idPreviewContainer.style.display = 'flex';
-        liveCardIdStatus.textContent = "✓ 21+ ID Photo Attached";
-        liveCardIdStatus.classList.add('verified');
-      };
-      reader.readAsDataURL(file);
-    }
-  });
-
-  membershipForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const fullName = memNameInput.value.trim();
-    const phone = document.getElementById('mem-phone').value.trim();
-    const email = document.getElementById('mem-email').value.trim();
-    const address = memAddressInput.value.trim();
-    const reason = document.getElementById('mem-reason').value.trim();
-    const idFile = idFileInput.files[0];
-
-    if (!idFile) {
-      alert("Please take or upload a picture of your ID for 21+ age verification.");
-      return;
-    }
-
-    const randomCode = "CUZZO-NY-" + Math.floor(1000 + Math.random() * 9000);
-    document.getElementById('generated-member-id').textContent = randomCode;
-    liveCardCode.textContent = `PASS #${randomCode}`;
-
-    if (FORMSPREE_ENDPOINT) {
-      try {
-        const formData = new FormData(membershipForm);
-        formData.append('memberCode', randomCode);
-        await fetch(FORMSPREE_ENDPOINT, {
-          method: 'POST',
-          body: formData,
-          headers: { 'Accept': 'application/json' }
-        });
-      } catch (err) {
-        console.log("Guardado local listo, continuando a WhatsApp...");
-      }
-    }
-
-    const applicationMessage = 
-      `🗽 *NEW CUZZO CHRONIC MEMBERSHIP SIGN UP* 🌱\n` +
-      `*Member Pass ID:* ${randomCode}\n\n` +
-      `👤 *Full Name:* ${fullName}\n` +
-      `📍 *Address:* ${address}\n` +
-      `📞 *Phone:* ${phone}\n` +
-      `✉️ *Email:* ${email}\n` +
-      `🪪 *ID Verification Photo:* ${idFile.name} (Attaching my ID photo right now)\n\n` +
-      `💬 *Reason for Joining:* "${reason}"`;
-
-    const waVerifyUrl = `https://wa.me/${CLIENT_WHATSAPP_NUMBER}?text=${encodeURIComponent(applicationMessage)}`;
-    document.getElementById('whatsapp-final-verify-btn').href = waVerifyUrl;
-
-    membershipForm.style.display = 'none';
-    membershipSuccess.style.display = 'block';
-  });
-
-  if (resetFormBtn) {
-    resetFormBtn.addEventListener('click', () => {
-      membershipForm.style.display = 'flex';
-      membershipSuccess.style.display = 'none';
-    });
-  }
 });
