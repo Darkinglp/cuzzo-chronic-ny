@@ -2,7 +2,7 @@ window.addEventListener('DOMContentLoaded', () => {
   // ==========================================================
   // CONFIGURACIÓN DEL NÚMERO DE WHATSAPP DEL CLIENTE (USA +1)
   // ==========================================================
-  const CLIENT_WHATSAPP_NUMBER = "12125550199"; // Número real de EE. UU. (+1)
+  const CLIENT_EMAIL = "Jayzibby442@icloud.com"; // Pon aquí el correo real de Cuzzo's Chronic
 
   // Imagen de los 5 empaques de Cuzzo's Chronic
   const PACKAGES_IMAGE_PATH = "empaques.jpg";
@@ -418,8 +418,25 @@ window.addEventListener('DOMContentLoaded', () => {
   // 5. CATÁLOGO DE PRODUCTOS Y BOLSAS HERMÉTICAS + WHATSAPP
   // ==========================================================
   function createWhatsAppLink(itemName, categoryType) {
-    const chillMessage = `Yo Cuzzo's Chronic fam! 🗽🌱 Just checked out your interactive rolling tray and I'm really vibing with the *${itemName}* (${categoryType}). Love that you guys grow in Living Soil and keep the real NY classics alive. Can I get more info on this harvest?`;
-    return `https://wa.me/${CLIENT_WHATSAPP_NUMBER}?text=${encodeURIComponent(chillMessage)}`;
+    const subject = `🗽 NY Harvest Inquiry: ${itemName} (${categoryType}) — Cuzzo's Chronic`;
+    
+    const body = 
+      `Yo Cuzzo's Chronic Fam! 🗽🌱\n\n` +
+      `I just checked out your interactive rolling tray on cuzzoschronic.com and I'm really interested in getting more info on:\n\n` +
+      `• Selection: ${itemName}\n` +
+      `• Category: ${categoryType}\n\n` +
+      `Love that you guys grow 100% in Living Soil and keep the real New York classics alive. Please let me know current batch availability and how we can connect!\n\n` +
+      `Best regards,`;
+
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    if (isMobile) {
+      // En celular abre directo la App de Gmail / Correo lista para presionar Enviar
+      return `mailto:${CLIENT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    } else {
+      // En PC abre directo Gmail en el navegador con el correo ya redactado
+      return `https://mail.google.com/mail/?view=cm&fs=1&to=${CLIENT_EMAIL}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    }
   }
 
   const generalWaUrl = createWhatsAppLink("Cuzzo's Chronic Menu & Harvest", "General Inquiry");
@@ -643,7 +660,7 @@ window.addEventListener('DOMContentLoaded', () => {
         </div>
         <div class="product-actions-col">
           <a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="whatsapp-inquire-btn">
-            💬 Ask on WhatsApp
+            ✉️ Inquire via Email
           </a>
         </div>
       `;
